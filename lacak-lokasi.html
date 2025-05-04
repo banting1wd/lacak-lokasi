@@ -1,0 +1,82 @@
+<!DOCTYPE html>
+<html lang="id">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Bagikan Lokasi Kamu</title>
+  <style>
+    body {
+      font-family: sans-serif;
+      text-align: center;
+      padding: 50px;
+      background-color: #f2f2f2;
+    }
+    button {
+      padding: 10px 20px;
+      font-size: 16px;
+      border: none;
+      border-radius: 8px;
+      background-color: #4CAF50;
+      color: white;
+      cursor: pointer;
+    }
+    #output {
+      margin-top: 20px;
+      font-size: 18px;
+    }
+  </style>
+</head>
+<body>
+  <h2>Hai! Klik tombol di bawah untuk bagikan lokasi kamu</h2>
+  <button onclick="getLocation()">Bagikan Lokasi</button>
+  <p id="output"></p>
+
+  <script>
+    function getLocation() {
+      if (navigator.geolocation) {
+        navigator.geolocation.getCurrentPosition(showPosition, showError);
+      } else {
+        document.getElementById("output").innerText = "Geolocation tidak didukung oleh browser ini.";
+      }
+    }
+
+    function showPosition(position) {
+      const latitude = position.coords.latitude;
+      const longitude = position.coords.longitude;
+      const output = `Lokasi kamu: ${latitude}, ${longitude}`;
+      document.getElementById("output").innerText = output;
+
+      // Kirim data ke server - contoh URL (ganti dengan endpoint backend kamu)
+      fetch("https://example.com/save-location", {
+        method: "POST",
+        headers: {
+          "Content-Type": "application/json"
+        },
+        body: JSON.stringify({ lat: latitude, lon: longitude })
+      })
+      .then(response => response.text())
+      .then(data => console.log("Server response:", data))
+      .catch(error => console.error("Error:", error));
+    }
+
+    function showError(error) {
+      let message = "";
+      switch(error.code) {
+        case error.PERMISSION_DENIED:
+          message = "Kamu menolak berbagi lokasi.";
+          break;
+        case error.POSITION_UNAVAILABLE:
+          message = "Informasi lokasi tidak tersedia.";
+          break;
+        case error.TIMEOUT:
+          message = "Permintaan lokasi habis waktu.";
+          break;
+        case error.UNKNOWN_ERROR:
+          message = "Terjadi kesalahan tidak diketahui.";
+          break;
+      }
+      document.getElementById("output").innerText = message;
+    }
+  </script>
+</body>
+</html>
